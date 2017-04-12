@@ -10,9 +10,14 @@
 -- initialized at zero.
 CREATE TABLE players (
     id serial primary key,
-    name text
+    name text,
+    wins integer,
+    rounds integer
 );
 
-CREATE TABLE results (
-    
+CREATE TABLE matches (
+    round integer,
+    home integer,
+    away integer,
+    winner integer,
 );
