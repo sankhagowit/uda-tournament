@@ -15,15 +15,20 @@ def deleteMatches():
     """Remove all the match records from the database."""
     db = connect()
     cursor = db.cursor()
-    cursor.execute("INSERT INTO players (name) VALUES (%s)", (name))
-    db.commit()
+    cursor.execute("DELETE FROM matches")
+    db.commit() # Do I need this for the delete?
+    cursor.close() # All the examples have this line in addition to db.close()
     db.close()
-
 
 
 def deletePlayers():
     """Remove all the player records from the database."""
-    # DROP TABLE players;
+    db = connect()
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM players")
+    db.commit() # Do I need this for the delete?
+    cursor.close() # All the examples have this line in addition to db.close()
+    db.close()
 
 
 def countPlayers():
