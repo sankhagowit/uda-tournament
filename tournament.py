@@ -94,9 +94,10 @@ def reportMatch(winner, loser):
     winnerWins = output[0][2] + 1
     winnerMatches = output[0][3] + 1
     loserMatches = output[1][3] + 1
-
+    # Update winner wins and matches
     cursor.execute("UPDATE players SET wins = %s, matches = %s WHERE id = %s;", (winnerWins, winnerMatches, winner))
     db.commit()
+    # Update loser matches
     cursor.execute("UPDATE players SET matches = %s WHERE id = %s;", (loserMatches, loser))
     db.commit()
     db.close()
@@ -121,7 +122,7 @@ def swissPairings():
     cursor = db.cursor()
     cursor.execute("SELECT id, name FROM players ORDER BY wins DESC")
     output = cursor.fetchall()
-    matches = len(output)/2
+    matches = len(output)/2 # Number of matches to be played
     swissPairings = []
     for x in range(0, matches):
         pairing = (output[2*x][0], output[2*x][1], output[2*x+1][0], output[2*x+1][1])

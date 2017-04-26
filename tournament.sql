@@ -10,9 +10,3 @@ CREATE TABLE players (
     wins integer DEFAULT 0,
     matches integer DEFAULT 0
 );
--- matches table containing the round number, the teams competing ("home" and "away", with home being the team with more wins.)
-CREATE TABLE matches (
-    match serial primary key,
-    winner integer references players(id),
-    loser integer references players(id)
-);
