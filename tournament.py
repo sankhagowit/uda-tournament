@@ -6,36 +6,41 @@
 import psycopg2
 import bleach
 
-def connect():
+def connect(database_name="tournament"):
     """Connect to the PostgreSQL database.  Returns a database connection."""
-    return psycopg2.connect("dbname=tournament")
+    try:
+        db = psycopg2.connect("dbname={}".format(database_name))
+        cursor = db.cursor()
+        return db, cursor
+    except:
+        print "<error message>"
 
 
 def deleteMatches():
     """Remove all the match records from the database."""
-    db = connect()
-    cursor = db.cursor()
-    cursor.execute("UPDATE players SET wins = 0, matches = 0;")
-    db.commit() # Do I need this for the delete?
-    cursor.close() # All the examples have this line in addition to db.close()
+    db, cursor = connect()
+    query = "DELETE FROM matches;"
+    cursor.execute(query)
+    db.commit()
+    cursor.close()
     db.close()
 
 
 def deletePlayers():
     """Remove all the player records from the database."""
-    db = connect()
-    cursor = db.cursor()
-    cursor.execute("DELETE FROM players;")
-    db.commit() # Do I need this for the delete?
-    cursor.close() # All the examples have this line in addition to db.close()
+    db, cursor = connect()
+    query = "DELETE FROM players;"
+    cursor.execute(query)
+    db.commit()
+    cursor.close()
     db.close()
 
 
 def countPlayers():
     """Returns the number of players currently registered."""
-    db = connect()
-    cursor = db.cursor()
-    cursor.execute("SELECT count(*) FROM players;")
+    db, cursor = connect()
+    query = "SELECT count(*) FROM players;"
+    cursor.execute(query)
     output = cursor.fetchone()
     cursor.close()
     db.close()
@@ -51,10 +56,11 @@ def registerPlayer(name):
     Args:
       name: the player's full name (need not be unique).
     """
-    db = connect()
-    cursor = db.cursor()
+    db, cursor = connect()
     clean_name = bleach.clean(name)
-    cursor.execute("INSERT INTO players (name) VALUES (%s);", (clean_name,))
+    query = "INSERT INTO players (name) VALUES (%s)"
+    parameter = (clean_name,)
+    cursor.execute(query, parameter)
     db.commit()
     db.close()
 
@@ -72,9 +78,9 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
-    db = connect()
-    cursor = db.cursor()
-    cursor.execute("""SELECT * FROM players ORDER BY wins DESC;""")
+    db, cursor = connect()
+    query = """SELECT * FROM standings;"""
+    cursor.execute(query)
     output = cursor.fetchall()
     db.close()
     return output
@@ -87,18 +93,10 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
-    db = connect()
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM players WHERE id = %s OR id = %s;", (winner, loser))
-    output = cursor.fetchall() # wins index 2, matches index 3
-    winnerWins = output[0][2] + 1
-    winnerMatches = output[0][3] + 1
-    loserMatches = output[1][3] + 1
-    # Update winner wins and matches
-    cursor.execute("UPDATE players SET wins = %s, matches = %s WHERE id = %s;", (winnerWins, winnerMatches, winner))
-    db.commit()
-    # Update loser matches
-    cursor.execute("UPDATE players SET matches = %s WHERE id = %s;", (loserMatches, loser))
+    db, cursor = connect()
+    query = "INSERT INTO matches (winner, loser) VALUES (%s, %s);"
+    parameters = (winner, loser)
+    cursor.execute(query, parameters)
     db.commit()
     db.close()
 
@@ -118,9 +116,9 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
-    db = connect()
-    cursor = db.cursor()
-    cursor.execute("SELECT id, name FROM players ORDER BY wins DESC")
+    db, cursor = connect()
+    query = "SELECT id, name FROM standings ORDER BY wins DESC"
+    cursor.execute(query)
     output = cursor.fetchall()
     matches = len(output)/2 # Number of matches to be played
     swissPairings = []
