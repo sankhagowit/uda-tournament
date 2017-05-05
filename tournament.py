@@ -6,6 +6,7 @@
 import psycopg2
 import bleach
 
+
 def connect(database_name="tournament"):
     """Connect to the PostgreSQL database.  Returns a database connection."""
     try:
@@ -68,8 +69,8 @@ def registerPlayer(name):
 def playerStandings():
     """Returns a list of the players and their win records, sorted by wins.
 
-    The first entry in the list should be the player in first place, or a player
-    tied for first place if there is currently a tie.
+    The first entry in the list should be the player in first place, or a
+    player tied for first place if there is currently a tie.
 
     Returns:
       A list of tuples, each of which contains (id, name, wins, matches):
@@ -120,9 +121,10 @@ def swissPairings():
     query = "SELECT id, name FROM standings ORDER BY wins DESC"
     cursor.execute(query)
     output = cursor.fetchall()
-    matches = len(output)/2 # Number of matches to be played
+    matches = len(output)/2  # Number of matches to be played
     swissPairings = []
     for x in range(0, matches):
-        pairing = (output[2*x][0], output[2*x][1], output[2*x+1][0], output[2*x+1][1])
+        pairing = (output[2*x][0], output[2*x][1],
+                   output[2*x+1][0], output[2*x+1][1])
         swissPairings.append(pairing)
     return swissPairings
